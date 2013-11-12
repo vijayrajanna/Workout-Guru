@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".AccelerometerReader" >
 
     <LinearLayout
         android:id="@+id/LinearLayout1"
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:text="Accelerometer Data"
+            android:text="@string/accelerometerData"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <LinearLayout
@@ -35,7 +35,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Y Axis"
+                android:text="@string/yAxis"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -59,7 +59,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="X Axis"
+                android:text="@string/xAxis"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -81,7 +81,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Z Axis"
+                android:text="@string/zAxis"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
