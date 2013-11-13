@@ -17,11 +17,11 @@ import android.view.Menu;
 
 public class AccelerometerReader extends Activity implements SensorEventListener{
 	
-	private float mLastX, mLastY, mLastZ;
+	private float mLastX, mLastY, mLastZ; 
 	private boolean mInitialized; 
 	private SensorManager mSensorManager; 
 	private Sensor mAccelerometer; 
-	private final float NOISE = (float) 2.0;
+	private final float NOISE = (float) 2.0; 
 	EditText editTextX = null;
 	EditText editTextY = null;
 	EditText editTextZ = null;
