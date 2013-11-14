@@ -46,4 +46,8 @@
     <string name="action_recommendation">Recommendations</string>
     <string name="action_share">Share with Friends</string>
     <string name="action_run">Start Tracking</string>
+    <string name="action_stop">Stop Tracking</string>
+    
+    <!--  Entries for the service -->
+    <string name="serviceStarted">Activity Monitor initiated.</string>
 </resources>
