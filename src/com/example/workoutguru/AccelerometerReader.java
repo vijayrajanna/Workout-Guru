@@ -7,6 +7,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,19 +18,19 @@ import android.app.Activity;
 import android.view.Menu;
 
 
-public class AccelerometerReader extends Activity implements SensorEventListener{
+public class AccelerometerReader extends ActionBarActivity implements SensorEventListener{
 	
-	private float mLastX, mLastY, mLastZ; 
+	private float mLastX, mLastY, mLastZ;
 	private boolean mInitialized; 
 	private SensorManager mSensorManager; 
 	private Sensor mAccelerometer; 
-	private final float NOISE = (float) 2.0; 
+	private final float NOISE = (float) 2.0;
 	EditText editTextX = null;
 	EditText editTextY = null;
 	EditText editTextZ = null;
 	TextView labelAccData = null ;
 	
-
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -44,11 +47,32 @@ public class AccelerometerReader extends Activity implements SensorEventListener
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		// Inflate the menu items for use in the action bar
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main_activity, menu);
+	    return super.onCreateOptionsMenu(menu);
 	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_run:
+	            //openSearch();
+	            return true;
+	        case R.id.action_setGoals:
+	            //composeMessage();
+	            return true;
+	        case R.id.action_reports:
+	            //composeMessage();
+	            return true;
+	        case R.id.action_recommendation:
+	            //composeMessage();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);

@@ -10,7 +10,7 @@
     <string name="yAxis">Y Axis</string>
 
     <!-- Strings related to login -->
-    <string name="title_activity_login">Workout Guru Sign in</string>
+    <string name="title_activity_login">Workout Guru</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_register">Register</string>
@@ -40,4 +40,10 @@
         <item>Other</item>
     </string-array>
     
+    <!-- Entries for action bar -->
+    <string name="action_setGoals">Set Goals</string>
+    <string name="action_reports">Analytics</string>
+    <string name="action_recommendation">Recommendations</string>
+    <string name="action_share">Share with Friends</string>
+    <string name="action_run">Start Tracking</string>
 </resources>
