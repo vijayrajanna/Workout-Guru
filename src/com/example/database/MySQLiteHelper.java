@@ -1,10 +1,15 @@
 package com.example.database;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
@@ -25,13 +30,19 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		// SQL statement to create book table
 		String CREATE_TABLE = "CREATE TABLE rawdata ( " +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-				"x NUMERIC, "+
-				"y NUMERIC, "+
-				"z NUMERIC, "+
+				"xAvg NUMERIC, "+
+				"yAvg NUMERIC, "+
+				"zAvg NUMERIC, "+
 				
-				"xPeak NUMERIC, "+
-				"yPeak NUMERIC, "+
-				"zPeak NUMERIC ) ";
+				"xAvgAbsDiff NUMERIC, "+
+				"yAvgAbsDiff NUMERIC, "+
+				"zAvgAbsDiff NUMERIC, "+
+				
+				"xStdDev NUMERIC, "+
+				"yStdDev NUMERIC, "+
+				"zStdDev NUMERIC "+
+				
+				") ";
 				
 		
 		// create books table
@@ -47,44 +58,95 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         this.onCreate(db);
 	}
 	
-   public void getRawData()
+	public void exportEmailInCSV()
+	{
+        File folder = new File(Environment.getExternalStorageDirectory() + "/Folder");
+
+        boolean var = false;
+        if (!folder.exists())
+            var = folder.mkdir();
+
+       Log.d("exportEmailInCSV","Folder name: " + folder);
+        final String filename = folder.toString() + "/" + "Test.csv";
+
+        new Thread() {
+            public void run() {
+                try {
+
+                    FileWriter fw = new FileWriter(filename);
+
+                    Cursor cursor = getRawData();
+                    
+                    fw.append("XAVG,YAVG,ZAVG,XABSOLDEV,YABSOLDEV,ZABSOLDEV,XSTANDDEV,YSTANDDEV,ZSTANDDEV,CLASS\n");	
+                    if (cursor.moveToFirst()) {
+                        do {
+                     	   String row = "";
+                     	  row += cursor.getString(0) +",";
+                     	  row += cursor.getString(1) +",";
+                     	  row += cursor.getString(2) +",";
+                     	  row += cursor.getString(3) +",";
+                     	  row += cursor.getString(4) +",";
+                     	  row += cursor.getString(5) +",";
+                     	  row += cursor.getString(6) +",";
+                     	  row += cursor.getString(7) +",";
+                     	  row += cursor.getString(8) +",?";
+                     	 
+                     	 fw.append(row); 
+                     	 fw.append('\n');
+                     	  
+                        } while (cursor.moveToNext());
+                    }
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+
+                    // fw.flush();
+                    fw.close();
+
+                } catch (Exception e) {
+                }
+              
+            }
+        }.start();
+
+    }
+
+	
+   public Cursor getRawData()
    {
-	   String query ="SELECT * From rawdata";
+	   String query ="SELECT xAvg,yAvg,zAvg," + 
+			   		 " xAvgAbsDiff, yAvgAbsDiff, zAvgAbsDiff, "+
+			   		 " xStdDev, yStdDev, zStdDev From rawdata";
 	   
 	   SQLiteDatabase db = this.getWritableDatabase();
        Cursor cursor = db.rawQuery(query, null);
        
-       if (cursor.moveToFirst()) {
-           do {
-        	   String row = "";
-        	  row += cursor.getString(0) +",";
-        	  row += cursor.getString(1) +",";
-        	  row += cursor.getString(2) +",";
-        	  row += cursor.getString(3) +",";
-        	  row += cursor.getString(4) +",";
-        	  row += cursor.getString(5) ;
-        	  
-        	  Log.d("Rawdata",row);
-        	  
-           } while (cursor.moveToNext());
-       }
-        
+       return cursor;
    }
+       
+       
+   
     
-	public void insertRawData(float x, float y, float z, float xPeak,float yPeak,float zPeak){
+	public void insertRawData(float xAvg, float yAvg, float zAvg,
+							  float xAvgAbsDiff, float yAvgAbsDiff, float zAvgAbsDiff,
+							  double xStdDev,double yStdDev,double zStdDev){
 		
 		// 1. get reference to writable DB
 		SQLiteDatabase db = this.getWritableDatabase();
 		 
 		// 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put("x", x); 
-        values.put("y", y); 
-        values.put("z", z); 
+        values.put("xAvg", xAvg); 
+        values.put("yAvg", yAvg); 
+        values.put("zAvg", zAvg); 
         
-        values.put("xPeak", xPeak); 
-        values.put("yPeak", yPeak); 
-        values.put("zPeak", zPeak); 
+        values.put("xAvgAbsDiff", xAvgAbsDiff); 
+        values.put("yAvgAbsDiff", yAvgAbsDiff); 
+        values.put("zAvgAbsDiff", zAvgAbsDiff); 
+        
+        values.put("xStdDev", xStdDev); 
+        values.put("yStdDev", yStdDev); 
+        values.put("zStdDev", zStdDev); 
  
         // 3. insert
         db.insert(RAWDATA, // table

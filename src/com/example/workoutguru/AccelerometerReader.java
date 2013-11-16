@@ -75,7 +75,7 @@ public class AccelerometerReader extends ActionBarActivity
 	        	
 	        	stopService(new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
-	        	
+	        	helper.exportEmailInCSV();
 	        	//this.invalidateOptionsMenu();
 	            return true;
 	        case R.id.action_setGoals:
