@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.database.MySQLiteHelper;
+import com.example.weka.J48Classifier;
 
 
 public class AccelerometerReader extends ActionBarActivity
@@ -76,6 +77,8 @@ public class AccelerometerReader extends ActionBarActivity
 	        	stopService(new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
 	        	helper.exportEmailInCSV();
+	        	
+	        	
 	        	//this.invalidateOptionsMenu();
 	            return true;
 	        case R.id.action_setGoals:

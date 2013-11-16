@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.example.weka.J48Classifier;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -21,8 +23,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     
     private static final String RAWDATA = "rawdata";
    
+    private Context context;
+    
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);	
+		
+		this.context = context;
 	}
 
 	@Override
@@ -66,9 +72,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         if (!folder.exists())
             var = folder.mkdir();
 
-       Log.d("exportEmailInCSV","Folder name: " + folder);
-        final String filename = folder.toString() + "/" + "Test.csv";
-
+        Log.d("exportEmailInCSV","Folder name: " + folder);
+        
+        final String pathToFolder = folder.toString();
+        final String filename =  pathToFolder + "/" + "Test.csv";
+        
         new Thread() {
             public void run() {
                 try {
@@ -100,6 +108,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                         cursor.close();
                     }
 
+                    J48Classifier classifier = new J48Classifier(context);
+    	        	classifier.classify(pathToFolder,filename);
+    	        	
                     // fw.flush();
                     fw.close();
 
