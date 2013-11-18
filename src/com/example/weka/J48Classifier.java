@@ -1,32 +1,33 @@
 package com.example.weka;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
-
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
+import java.util.ArrayList;
 
 import weka.classifiers.trees.J48;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
-import weka.core.converters.CSVLoader;
+import android.util.Log;
+
+import com.example.database.MySQLiteHelper;
+import com.example.services.FeatureData;
+import com.example.utils.Constants;
 
 public class J48Classifier 
 {
 	private J48 tree;
 	
-	public J48Classifier(Context context)
+	public J48Classifier()
 	{
 		tree = new J48();         // new instance of tree
 		
 		ArffLoader loader = new ArffLoader();
 		
 		try{
-			loader.setSource(context.getAssets().open("WISDM_min.arff"));
+			loader.setSource(MySQLiteHelper.getTrainingSetIS());
 			Instances instances = loader.getDataSet();
 			instances.setClassIndex(instances.numAttributes() - 1);
 			tree.buildClassifier(instances);
@@ -46,7 +47,7 @@ public class J48Classifier
 		
 		try
 		{
-			CSVLoader loader = new CSVLoader();
+			ArffLoader loader = new ArffLoader();
 			loader.setSource(new File(fileName));
 			Instances unlabeled = loader.getDataSet();
 			
@@ -69,11 +70,53 @@ public class J48Classifier
 			 writer.newLine();
 			 writer.flush();
 			 writer.close();
+			 Log.d("J48Classify","Done 4");
 		}catch(Exception e)
 		{
 			Log.e("J48classify",e.getMessage());
 		}
 		
+	}
+	
+	public void classifySingleInstance(FeatureData dataPoint)
+	{
+		ArrayList<Attribute> attributeList = new ArrayList<Attribute>(2);
+		int lastAttrIndex = Constants.ATTRIBUTES.length - 1;
+		
+		for(int i=0;i<lastAttrIndex; i++)
+		{
+			Attribute attr = new Attribute(Constants.ATTRIBUTES[i]);
+			attributeList.add(attr);
+		}
+
+		ArrayList<String> classVal = new ArrayList<String>();
+		for(int j=0;j<Constants.CLASSES.length;j++)
+		{
+			classVal.add(Constants.CLASSES[j]);
+		}
+        
+		attributeList.add(new Attribute("@@class@@",classVal));
+
+        Instances data = new Instances("TestInstances",attributeList,0);
+
+
+        // Create instances for each pollutant with attribute values latitude,
+        // longitude and pollutant itself
+        DenseInstance inst_co = new DenseInstance(data.numAttributes());
+        data.add(inst_co);
+
+       for(int i=0;i<lastAttrIndex;i++)
+       {
+    	   inst_co.setValue(attributeList.get(i), dataPoint.getDataValue(i));
+       }
+       
+       try {
+    	   double result = tree.classifyInstance(inst_co);
+    	   Log.d("J48classify","Single Instance Classification Result " + result);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

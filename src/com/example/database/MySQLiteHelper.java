@@ -2,9 +2,7 @@ package com.example.database;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-
-import com.example.weka.J48Classifier;
+import java.io.InputStream;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,6 +11,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
+
+import com.example.utils.Constants;
+import com.example.weka.J48Classifier;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
 	
@@ -23,7 +24,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     
     private static final String RAWDATA = "rawdata";
    
-    private Context context;
+    private static Context context;
     
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);	
@@ -31,6 +32,21 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		this.context = context;
 	}
 
+	public static InputStream getTrainingSetIS()
+	{
+		InputStream is = null;
+		try
+		{
+			is = context.getAssets().open(Constants.TRAIING_SET_FILE);
+		}
+		catch(Exception e)
+		{
+			Log.e("MySQLiteHelper","Exception occured when getting Training set input stream " + e.getMessage());
+		}
+		
+		return is;
+	}
+	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// SQL statement to create book table
@@ -75,17 +91,30 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         Log.d("exportEmailInCSV","Folder name: " + folder);
         
         final String pathToFolder = folder.toString();
-        final String filename =  pathToFolder + "/" + "Test.csv";
+        final String filename =  pathToFolder + "/" + "Test.arff";
         
         new Thread() {
             public void run() {
                 try {
 
                     FileWriter fw = new FileWriter(filename);
-
-                    Cursor cursor = getRawData();
                     
-                    fw.append("XAVG,YAVG,ZAVG,XABSOLDEV,YABSOLDEV,ZABSOLDEV,XSTANDDEV,YSTANDDEV,ZSTANDDEV,CLASS\n");	
+                    Cursor cursor = getRawData();
+                    fw.append("@relation activity_recognition_test\n\n");
+                    
+                    String[] attributes = {"XAVG","YAVG","ZAVG","XABSOLDEV","YABSOLDEV","ZABSOLDEV","XSTANDDEV","YSTANDDEV","ZSTANDDEV","CLASS"};
+                    for(int i=0;i<attributes.length;i++)
+                    {                    	
+                    	fw.append("@attribute " + attributes[i]);
+                    	if(attributes[i].equalsIgnoreCase("CLASS"))
+                    		fw.append(" {Walking,Jogging,Upstairs,Downstairs,Sitting,Standing}\n");
+                    	else
+                    		fw.append(" numeric\n");
+                    }
+                    
+                    
+                    fw.append("\n");	
+                    fw.append("@data\n");
                     if (cursor.moveToFirst()) {
                         do {
                      	   String row = "";
@@ -104,15 +133,18 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                      	  
                         } while (cursor.moveToNext());
                     }
+                                        
                     if (cursor != null && !cursor.isClosed()) {
                         cursor.close();
                     }
 
-                    J48Classifier classifier = new J48Classifier(context);
+                    fw.flush();
+                    fw.close();
+                    
+                    J48Classifier classifier = new J48Classifier();
     	        	classifier.classify(pathToFolder,filename);
     	        	
-                    // fw.flush();
-                    fw.close();
+                    
 
                 } catch (Exception e) {
                 }
@@ -125,7 +157,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
    public Cursor getRawData()
    {
-	   String query ="SELECT xAvg,yAvg,zAvg," + 
+	   String query ="SELECT id,xAvg,yAvg,zAvg," + 
 			   		 " xAvgAbsDiff, yAvgAbsDiff, zAvgAbsDiff, "+
 			   		 " xStdDev, yStdDev, zStdDev From rawdata";
 	   

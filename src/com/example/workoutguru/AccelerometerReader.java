@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.database.MySQLiteHelper;
-import com.example.weka.J48Classifier;
+import com.example.services.MotionDetectorService;
 
 
 public class AccelerometerReader extends ActionBarActivity
@@ -76,7 +76,7 @@ public class AccelerometerReader extends ActionBarActivity
 	        	
 	        	stopService(new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
-	        	helper.exportEmailInCSV();
+	        	//helper.exportEmailInCSV();
 	        	
 	        	
 	        	//this.invalidateOptionsMenu();
@@ -111,18 +111,16 @@ public class AccelerometerReader extends ActionBarActivity
         //mSensorManager.unregisterListener(this);
     }
     
+   
+    
     protected void onDestroy() { 
     	super.onDestroy();
+    	stopService(new Intent(this,MotionDetectorService.class));
     	
     	 if (helper != null) {
 	          helper.close();
 	    }
     }
 
-	/** Called when the activity is first created. */
-	public void instantiateAccelerometer()
-	{
-
-	}
 	
 }
