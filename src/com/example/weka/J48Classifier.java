@@ -98,11 +98,12 @@ public class J48Classifier
 		attributeList.add(new Attribute("@@class@@",classVal));
 
         Instances data = new Instances("TestInstances",attributeList,0);
-
+        data.setClass(attributeList.get(attributeList.size()-1));
 
         // Create instances for each pollutant with attribute values latitude,
         // longitude and pollutant itself
         DenseInstance inst_co = new DenseInstance(data.numAttributes());
+        inst_co.setDataset(data);
         data.add(inst_co);
 
        for(int i=0;i<lastAttrIndex;i++)

@@ -3,6 +3,7 @@ package com.example.workoutguru;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ public class AccelerometerReader extends ActionBarActivity
 	
 	Menu menu = null;
 	private MySQLiteHelper helper = null;
+	
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,7 +64,8 @@ public class AccelerometerReader extends ActionBarActivity
 	    // Handle presses on the action bar items
 	    switch (item.getItemId()) {
 	        case R.id.action_run:
-	        	startService(new Intent(this,MotionDetectorService.class));
+	        	
+	        	startService( new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
 	        	
 	        	MenuItem actionstop = menu.findItem(R.id.action_stop);
@@ -74,7 +77,9 @@ public class AccelerometerReader extends ActionBarActivity
 	        	MenuItem actionRun = menu.findItem(R.id.action_run);
 	        	actionRun.setVisible(true);
 	        	
-	        	stopService(new Intent(this,MotionDetectorService.class));
+	        	Log.d("AccelerometerAcivity","Entered stop event");
+	        	
+	        	stopService( new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
 	        	//helper.exportEmailInCSV();
 	        	

@@ -8,8 +8,14 @@ import com.example.weka.J48Classifier;
 
 public class ClassifyThread extends Thread 
 {
-	BlockingQueue<FeatureData> queue;
+	 BlockingQueue<FeatureData> queue;
 	 private J48Classifier classifier = null;
+	 private boolean isActive = true;
+	 
+	 public void deactivateThread()
+	 {
+		 isActive = false;
+	 }
 	 
 	public 	ClassifyThread(String name,BlockingQueue<FeatureData> queue)
 	{
@@ -22,10 +28,13 @@ public class ClassifyThread extends Thread
 	
 	public void run()
 	{
+		
+		isActive = true;
 		while(true)
 		{
 			try
 			{
+				//Log.d("ClassifyThread","" + queue.isEmpty());
 				if(queue.isEmpty())
 				{
 					this.sleep(100);
@@ -40,6 +49,9 @@ public class ClassifyThread extends Thread
 				Log.e("ClassifyThread",e.getMessage());
 			}
 			
+			Log.d("ClassifyThread","Entered Run. IsAction: " + isActive);
+			if(isActive!=true)
+				break;
 		}
 	}
 	

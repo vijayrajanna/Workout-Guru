@@ -34,7 +34,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 	private int currSecond = 0;
 	private int count = 0;
 	private final int points = 200;
-	private Runnable classificationThread; 
+	private ClassifyThread classificationThread; 
 	private BlockingQueue<FeatureData> queue;
 	
 	public MotionDetectorService() {
@@ -51,6 +51,8 @@ public class MotionDetectorService extends IntentService implements SensorEventL
     public void onCreate() {
         super.onCreate();
         
+        Toast.makeText(this,getText(R.string.serviceInit), Toast.LENGTH_SHORT).show();
+        
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
@@ -58,7 +60,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
         //helper = new MySQLiteHelper (this);
         queue = new ArrayBlockingQueue<FeatureData>(10);
         classificationThread = new ClassifyThread("ClassifyThread",queue); 
-        
+        classificationThread.start();
         //Show the service has been started.
         Toast.makeText(this, getText(R.string.serviceStarted), Toast.LENGTH_SHORT).show();
         
@@ -79,7 +81,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 	@Override
 	public void onDestroy()
 	{
-	
+		//classificationThread.deactivateThread();
 	}
 	
 	@Override
