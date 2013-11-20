@@ -72,38 +72,17 @@ public class AnalyticsActivity extends ListActivity {
 		    return values;
 		  }
 
-		  private XYMultipleSeriesDataset getDemoDataset() {
-		    XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-		    final int nr = 10;
-		    Random r = new Random();
-		    for (int i = 0; i < SERIES_NR; i++) {
-		      XYSeries series = new XYSeries("Demo series " + (i + 1));
-		      for (int k = 0; k < nr; k++) {
-		        series.add(k, 20 + r.nextInt() % 100);
-		      }
-		      dataset.addSeries(series);
-		    }
-		    return dataset;
-		  }
+		  
 
-		  private XYMultipleSeriesDataset getDateDemoDataset() {
-		    XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-		    final int nr = 10;
-		    long value = new Date().getTime() - 3 * TimeChart.DAY;
-		    Random r = new Random();
-		    for (int i = 0; i < SERIES_NR; i++) {
-		      TimeSeries series = new TimeSeries("Demo series " + (i + 1));
-		      for (int k = 0; k < nr; k++) {
-		        series.add(new Date(value + k * TimeChart.DAY / 4), 20 + r.nextInt() % 100);
-		      }
-		      dataset.addSeries(series);
-		    }
-		    return dataset;
-		  }
+		 
 
-		  private XYMultipleSeriesDataset getBarDemoDataset(XYMultipleSeriesRenderer renderer) {
+		  private XYMultipleSeriesDataset getActivityDataset(XYMultipleSeriesRenderer renderer, String datasetName) {
 		    XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-		    Cursor cursor = helper.getSummaryData();
+		    Cursor cursor = null;
+		    if(datasetName.equals("activity"))
+		    	cursor = helper.getSummaryData();
+		    else
+		    	cursor = helper.getCalorieData();
 		    String seriesName = "";
 		    int[] colors = {Color.BLUE, Color.GREEN,Color.YELLOW, Color.RED, Color.CYAN, Color.WHITE, Color.LTGRAY};
 		    int count=0;
@@ -151,6 +130,9 @@ public class AnalyticsActivity extends ListActivity {
 			    	}
 			    	
 			    	renderer.setXLabels(0);
+			    	renderer.setXAxisMin(0);
+			    	renderer.setXAxisMax(dates.size()+1);
+			    	renderer.setYAxisMin(0);
 			    	Collections.sort(dates);
 			    	for(double i=0;i<dates.size();i++)
 			    	{
@@ -170,36 +152,15 @@ public class AnalyticsActivity extends ListActivity {
 		    return dataset;
 		  }
 
-		  private XYMultipleSeriesRenderer getDemoRenderer() {
-		    XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-		    renderer.setAxisTitleTextSize(16);
-		    renderer.setChartTitleTextSize(20);
-		    renderer.setLabelsTextSize(15);
-		    renderer.setLegendTextSize(15);
-		    renderer.setPointSize(5f);
-		    renderer.setMargins(new int[] {20, 30, 15, 0});
-		    XYSeriesRenderer r = new XYSeriesRenderer();
-		    r.setColor(Color.BLUE);
-		    r.setPointStyle(PointStyle.SQUARE);
-		    r.setFillBelowLine(true);
-		    r.setFillBelowLineColor(Color.WHITE);
-		    r.setFillPoints(true);
-		    renderer.addSeriesRenderer(r);
-		    r = new XYSeriesRenderer();
-		    r.setPointStyle(PointStyle.CIRCLE);
-		    r.setColor(Color.GREEN);
-		    r.setFillPoints(true);
-		    renderer.addSeriesRenderer(r);
-		    renderer.setAxesColor(Color.DKGRAY);
-		    renderer.setLabelsColor(Color.LTGRAY);
-		    return renderer;
-		  }
+		  
 
 		  public void setActivityChartSettings(XYMultipleSeriesRenderer renderer)
 		  {
 			  renderer.setChartTitle("Activity Trend");
-			  renderer.setXTitle("Days");
-			  renderer.setYTitle("Active minutes");
+			  //renderer.setXTitle("Days");
+			  renderer.setYTitle("Active seconds");
+			  renderer.setBarWidth(35);
+			  
 			  /*
 			  SimpleSeriesRenderer r = new SimpleSeriesRenderer();
 			    r.setColor(Color.BLUE);
@@ -226,11 +187,12 @@ public class AnalyticsActivity extends ListActivity {
 		    
 		    XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
 		    setChartSettings(renderer);
+		    setActivityChartSettings(renderer);
 		    
 		    switch (position) {
 		    case 0:
-		      setActivityChartSettings(renderer);
-		      XYMultipleSeriesDataset dataset = getBarDemoDataset(renderer);
+		      
+		      XYMultipleSeriesDataset dataset = getActivityDataset(renderer,"activity");
 		      
 		      Intent intent = ChartFactory.getBarChartIntent(this, dataset, renderer, Type.DEFAULT);
 		      startActivity(intent);
@@ -240,9 +202,14 @@ public class AnalyticsActivity extends ListActivity {
 		      
 		      break;
 		    case 1:
-			  setChartSettings(renderer);
-		      intent = ChartFactory.getBarChartIntent(this, getBarDemoDataset(renderer), renderer, Type.DEFAULT);
+		      dataset = getActivityDataset(renderer,"calorie");
+		    	
+		      intent = ChartFactory.getBarChartIntent(this, dataset, renderer, Type.DEFAULT);
 		      startActivity(intent);
+		      
+		      if(dataset.getSeriesCount()==0)
+		    	  Toast.makeText(this, getText(R.string.noActivityData), Toast.LENGTH_LONG).show();
+		      
 		      break;
 		    }
 		  }

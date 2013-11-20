@@ -1,6 +1,9 @@
 package com.example.workoutguru;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -29,20 +32,42 @@ public class AccelerometerReader extends ActionBarActivity
 	Menu menu = null;
 	private MySQLiteHelper helper = null;
 	
-	
+	private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	      Bundle bundle = intent.getExtras();
+	      if (bundle != null) {
+	        String x = bundle.getString("x");
+	        String y = bundle.getString("y");
+	        String z = bundle.getString("z");	
+	        
+	        editTextX.setText(x);
+	        editTextY.setText(y);
+	        editTextZ.setText(z);
+	      }
+	    }
+	  };
+	  
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-        mInitialized = false;
+		
+		helper = new MySQLiteHelper (this);
+		if(!helper.isProfileSet())
+		{
+			Intent intent = new Intent(this,RegisterUser.class);
+		    startActivity(intent);	
+		    return;
+		}
+		
+         mInitialized = false;
          
 	     labelAccData = (TextView)findViewById(R.id.labelAccData);
 	     labelAccData.forceLayout();
 		 editTextX = (EditText)findViewById(R.id.editTextX);
 		 editTextY = (EditText)findViewById(R.id.editTextY);
 		 editTextZ = (EditText)findViewById(R.id.editTextZ);
-		 
-		 helper = new MySQLiteHelper (this);
-		 
 		 
 		 //helper.getRawData();
 	}
@@ -73,6 +98,7 @@ public class AccelerometerReader extends ActionBarActivity
 	        	MenuItem actionstop = menu.findItem(R.id.action_stop);
 	        	actionstop.setVisible(true);
 	        	
+	        	registerReceiver(receiver,new IntentFilter("com.example.workoutguru"));
 	        	//this.invalidateOptionsMenu();
 	            return true;
 	        case R.id.action_stop:
@@ -83,6 +109,8 @@ public class AccelerometerReader extends ActionBarActivity
 	        	
 	        	stopService( new Intent(this,MotionDetectorService.class));
 	        	item.setVisible(false);
+	        	
+	        	unregisterReceiver(receiver);
 	        	//helper.exportEmailInCSV();
 	        	
 	        	
@@ -104,6 +132,7 @@ public class AccelerometerReader extends ActionBarActivity
 	}
     protected void onResume() {
         super.onResume();
+        registerReceiver(receiver,new IntentFilter("com.example.workoutguru"));
         /*
         //SENSOR_DELAY_NORMAL = 5 times per second
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -116,6 +145,7 @@ public class AccelerometerReader extends ActionBarActivity
 
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(receiver);
         //mSensorManager.unregisterListener(this);
     }
     

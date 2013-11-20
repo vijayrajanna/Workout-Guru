@@ -87,13 +87,25 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 		//classificationThread.deactivateThread();
 	}
 	
+	private void publishResults(float x, float y, float z) {
+	    Intent intent = new Intent("com.example.workoutguru");
+	    intent.putExtra("x", x);
+	    intent.putExtra("y", y);
+	    intent.putExtra("z", z);
+	    sendBroadcast(intent);
+	  }
+	
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// TODO Auto-generated method stub
 		
+		
 		float x = event.values[0];
 		float y = event.values[1];
 		float z = event.values[2];
+		
+		publishResults(x,y,z);
+		
 		/*
 		XMax = (XMax < x)? x:XMax;
 		YMax = (YMax < y)? y:YMax;

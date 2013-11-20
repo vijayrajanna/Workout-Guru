@@ -77,9 +77,52 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 								"seconds NUMERIC, "+
 								"activity_name TEXT ) ";
 		
+		String USER_PROFILE = "CREATE TABLE USER_PROFILE ( " +
+		        "AGE NUMERIC, " + 
+				"GENDER TEXT, "+
+				"WEIGHT NUMERIC, "+
+				"HEIGHT NUMERIC ) ";
+		
 		// create rawdata table
 		//db.execSQL(CREATE_TABLE);
 		db.execSQL(CREATE_SUMM_TBL);
+		db.execSQL(USER_PROFILE);
+	}
+	
+	public boolean isProfileSet()
+	{
+		boolean isSet = false;
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		String searchQuery ="SELECT 1 From USER_PROFILE";       
+        Cursor cursor = db.rawQuery(searchQuery, null);
+        if(cursor.moveToFirst())
+        	isSet = true;
+        
+        return isSet;
+        
+	}
+	public void updateUserProfile(int age, float weight, float height, String gender)
+	{
+		
+		ContentValues values = new ContentValues();
+        values.put("AGE", age);
+        values.put("GENDER", gender);
+        values.put("WEIGHT", weight);
+        values.put("HEIGHT", height);
+        
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+        if(isProfileSet())
+        {
+        	db.update("USER_PROFILE", values, null, null);
+        }
+        else
+        {
+        	db.insert("USER_PROFILE", null, values);
+        }
+        	
+        db.close(); 
 	}
 	
 	public void addSummaryData(String date, String activityName, int seconds)
@@ -136,11 +179,31 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		return cursor;
 	}
 	
+	public Cursor getCalorieData()
+	{
+		String query ="SELECT mainTbl.activity_name,mainTbl.workout_date," +
+					  " CASE WHEN activity_name IN ('Sitting') THEN mainTbl.BMR * 1.2 " +
+				           " WHEN activity_name IN ('Walking','Standing') THEN mainTbl.BMR * 1.375" +
+				           " WHEN activity_name IN ('Upstairs','Downstairs') THEN mainTbl.BMR * 1.55" +
+				           " ELSE mainTbl.BMR * 1.725 END " +
+					" FROM (SELECT activity_name,workout_date, " + 
+					  "CASE WHEN GENDER='Male' THEN (88.362 + (13.397 * weight * 2.2046) + (4.799 * height * 2.54) - (5.677 * age)) " +
+				          " WHEN GENDER ='Female' THEN (447.593 + (9.247 * weight * 2.2046) + (3.098 * height * 2.54) - (4.330 * age)) END as BMR " +
+					  "From " + SUMMARYTBL + ", USER_PROFILE)mainTbl " +
+					  " ORDER BY activity_name,date(workout_date)";
+		Log.d("CalorieQuery",query);
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cursor = db.rawQuery(query, null);
+
+		return cursor;
+	}
+	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older books table if existed
         db.execSQL("DROP TABLE IF EXISTS " + SUMMARYTBL);
         db.execSQL("DROP TABLE IF EXISTS rawdata");
+        db.execSQL("DROP TABLE IF EXISTS USER_PROFILE");
         
         // create fresh books table
         this.onCreate(db);
