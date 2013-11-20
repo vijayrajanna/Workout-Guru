@@ -74,14 +74,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		String CREATE_SUMM_TBL = "CREATE TABLE SUMMARY ( " +
 						        "_id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
 								"workout_date TEXT, "+
-								"seconds NUMERIC, "+
+								"seconds REAL, "+
 								"activity_name TEXT ) ";
 		
 		String USER_PROFILE = "CREATE TABLE USER_PROFILE ( " +
-		        "AGE NUMERIC, " + 
+		        "AGE REAL, " + 
 				"GENDER TEXT, "+
-				"WEIGHT NUMERIC, "+
-				"HEIGHT NUMERIC ) ";
+				"WEIGHT REAL, "+
+				"HEIGHT REAL ) ";
 		
 		// create rawdata table
 		//db.execSQL(CREATE_TABLE);
@@ -171,7 +171,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 	public Cursor getSummaryData()
 	{
-		String query ="SELECT activity_name,workout_date,seconds as duration From " + SUMMARYTBL + " ORDER BY activity_name,date(workout_date)";
+		String query ="SELECT activity_name,workout_date,CAST(seconds as REAL)/60.0 as duration From " + SUMMARYTBL + " ORDER BY activity_name,date(workout_date)";
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery(query, null);
@@ -182,14 +182,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public Cursor getCalorieData()
 	{
 		String query ="SELECT mainTbl.activity_name,mainTbl.workout_date," +
-					  " CASE WHEN activity_name IN ('Sitting') THEN mainTbl.BMR * 1.2 " +
-				           " WHEN activity_name IN ('Walking','Standing') THEN mainTbl.BMR * 1.375" +
-				           " WHEN activity_name IN ('Upstairs','Downstairs') THEN mainTbl.BMR * 1.55" +
-				           " ELSE mainTbl.BMR * 1.725 END " +
-					" FROM (SELECT activity_name,workout_date, " + 
-					  "CASE WHEN GENDER='Male' THEN (88.362 + (13.397 * weight * 2.2046) + (4.799 * height * 2.54) - (5.677 * age)) " +
-				          " WHEN GENDER ='Female' THEN (447.593 + (9.247 * weight * 2.2046) + (3.098 * height * 2.54) - (4.330 * age)) END as BMR " +
-					  "From " + SUMMARYTBL + ", USER_PROFILE)mainTbl " +
+					  " ROUND(mainTbl.wInKg * mainTbl.timeInHours * (CASE WHEN activity_name IN ('Sitting') THEN 1.0/mainTbl.BMRNorm " +
+				           " WHEN activity_name IN ('Walking','Standing') THEN 3.0/mainTbl.BMRNorm" +
+				           " WHEN activity_name IN ('Upstairs','Downstairs') THEN 2.5/mainTbl.BMRNorm" +
+				           " ELSE 7.0/mainTbl.BMRNorm END),2)  " +
+					" FROM (SELECT activity_name,workout_date, weight * 0.0454 as wInKg, seconds/(60.0*60.0) as timeInHours, " + 
+					  "CASE WHEN GENDER='Male' THEN ((13.75 * weight * 0.0454) + (5 * height * 2.54) - (6.76 * age) + 66)/(weight * 0.0454 * 24) " +
+				          " WHEN GENDER ='Female' THEN ((9.56 * weight * 0.0454) + (1.85 * height * 2.54) - (4.68 * age) + 655)/(weight * 0.0454 * 24) END as BMRNorm " +
+					  "From " + SUMMARYTBL + ", USER_PROFILE) as mainTbl " +
 					  " ORDER BY activity_name,date(workout_date)";
 		Log.d("CalorieQuery",query);
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -198,6 +198,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		return cursor;
 	}
 	
+	public void clearData()
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		db.delete(SUMMARYTBL, null, null);
+		
+		db.close();
+	}
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older books table if existed

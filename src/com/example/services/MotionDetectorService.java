@@ -54,7 +54,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
     public void onCreate() {
         super.onCreate();
         
-        Toast.makeText(this,getText(R.string.serviceInit), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,getText(R.string.serviceInit), Toast.LENGTH_SHORT).show();
         
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -86,7 +86,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 	{
 		//classificationThread.deactivateThread();
 	}
-	
+	/*
 	private void publishResults(float x, float y, float z) {
 	    Intent intent = new Intent("com.example.workoutguru");
 	    intent.putExtra("x", x);
@@ -94,7 +94,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 	    intent.putExtra("z", z);
 	    sendBroadcast(intent);
 	  }
-	
+	*/
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// TODO Auto-generated method stub
@@ -104,7 +104,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 		float y = event.values[1];
 		float z = event.values[2];
 		
-		publishResults(x,y,z);
+		//publishResults(x,y,z);
 		
 		/*
 		XMax = (XMax < x)? x:XMax;

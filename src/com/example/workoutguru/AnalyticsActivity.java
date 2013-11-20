@@ -9,19 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart.Type;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.chart.TimeChart;
 import org.achartengine.model.CategorySeries;
-import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -113,10 +107,10 @@ public class AnalyticsActivity extends ListActivity {
 		    		}
 		    		String dateStr = cursor.getString(1);
 		    		
-		    		Log.d("CursorData",currSeries + " " + cursor.getString(1) + " " + cursor.getInt(2));
+		    		Log.d("CursorData",currSeries + " " + cursor.getString(1) + " " + cursor.getFloat(2));
 		    		
 		    		Xlabels.add(dateStr);
-		    		series.add(dateStr,cursor.getInt(2));
+		    		series.add(dateStr,cursor.getFloat(2));
 		    		
 		    	}while(cursor.moveToNext());
 		    	
@@ -149,16 +143,33 @@ public class AnalyticsActivity extends ListActivity {
 		    	renderer.addSeriesRenderer(seriesrenderer);
 		    }
 		    
+		    cursor.close();
+		    
 		    return dataset;
 		  }
 
-		  
+		  public void setCalorieChartSettings(XYMultipleSeriesRenderer renderer)
+		  {
+			  renderer.setChartTitle("Calories Burnt");
+			  //renderer.setXTitle("Days");
+			  renderer.setYTitle("KCals");
+			  renderer.setBarWidth(35);
+			  
+			  /*
+			  SimpleSeriesRenderer r = new SimpleSeriesRenderer();
+			    r.setColor(Color.BLUE);
+			    renderer.addSeriesRenderer(r);
+			    r = new SimpleSeriesRenderer();
+			    r.setColor(Color.GREEN);
+			    renderer.addSeriesRenderer(r);
+			   */
+		  }
 
 		  public void setActivityChartSettings(XYMultipleSeriesRenderer renderer)
 		  {
 			  renderer.setChartTitle("Activity Trend");
 			  //renderer.setXTitle("Days");
-			  renderer.setYTitle("Active seconds");
+			  renderer.setYTitle("Active Minutes");
 			  renderer.setBarWidth(35);
 			  
 			  /*
@@ -187,11 +198,11 @@ public class AnalyticsActivity extends ListActivity {
 		    
 		    XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
 		    setChartSettings(renderer);
-		    setActivityChartSettings(renderer);
+		    
 		    
 		    switch (position) {
 		    case 0:
-		      
+		      setActivityChartSettings(renderer);
 		      XYMultipleSeriesDataset dataset = getActivityDataset(renderer,"activity");
 		      
 		      Intent intent = ChartFactory.getBarChartIntent(this, dataset, renderer, Type.DEFAULT);
@@ -202,6 +213,7 @@ public class AnalyticsActivity extends ListActivity {
 		      
 		      break;
 		    case 1:
+		      setCalorieChartSettings(renderer);
 		      dataset = getActivityDataset(renderer,"calorie");
 		    	
 		      intent = ChartFactory.getBarChartIntent(this, dataset, renderer, Type.DEFAULT);
