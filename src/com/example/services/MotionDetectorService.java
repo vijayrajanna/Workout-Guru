@@ -1,7 +1,8 @@
 package com.example.services;
 
 
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -36,6 +37,8 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 	private final int points = 200;
 	private ClassifyThread classificationThread; 
 	private BlockingQueue<FeatureData> queue;
+	private long previousStamp;
+	
 	
 	public MotionDetectorService() {
 	      super("MotionDetectorService");
@@ -63,7 +66,7 @@ public class MotionDetectorService extends IntentService implements SensorEventL
         classificationThread.start();
         //Show the service has been started.
         Toast.makeText(this, getText(R.string.serviceStarted), Toast.LENGTH_SHORT).show();
-        
+        previousStamp = System.currentTimeMillis();
 	}
 	
 	@Override
@@ -96,8 +99,9 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 		YMax = (YMax < y)? y:YMax;
 		ZMax = (ZMax < z)? z:ZMax;
 		*/
-		Calendar c = Calendar.getInstance(); 
-		int seconds = c.get(Calendar.SECOND);
+		
+		
+		//int seconds = c.get(Calendar.SECOND);
 			
 		if(count < points)
 		{
@@ -155,9 +159,14 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 			yStdDev = Math.sqrt(yStdDev/points);
 			zStdDev = Math.sqrt(zStdDev/points);
 			
+			//Date date = new Date();
+			long currStamp = System.currentTimeMillis();
+			int seconds = (int)((currStamp - previousStamp)/1000);
+			String formattedDate = (new SimpleDateFormat("yyyy/MM/dd")).format(new Date()); 
 			
 			//helper.insertRawData(xAvg,yAvg, zAvg,xAvgAbsDiff,yAvgAbsDiff,zAvgAbsDiff,xStdDev,yStdDev,zStdDev);
-			FeatureData data = new FeatureData(xAvg,yAvg, zAvg,xAvgAbsDiff,yAvgAbsDiff,zAvgAbsDiff,xStdDev,yStdDev,zStdDev);
+			FeatureData data = new FeatureData(xAvg,yAvg, zAvg,xAvgAbsDiff,yAvgAbsDiff,zAvgAbsDiff,
+												xStdDev,yStdDev,zStdDev,formattedDate,seconds);
 			queue.add(data);
 			
 			Log.d("MotionDetectorSensor","Added datapoint to queue");
@@ -171,8 +180,9 @@ public class MotionDetectorService extends IntentService implements SensorEventL
 			xArr = new float[points];
 			yArr = new float[points];
 			zArr = new float[points];
+			
+			previousStamp = currStamp;
 		}
-		
 		
 	}
 }

@@ -14,9 +14,12 @@ public class FeatureData
 	private double yStdDev;
 	private double zStdDev;
 	
+	private String datestamp;
+	private int duration;
+	
 	public FeatureData(float xAvg, float yAvg, float zAvg,
 			  float xAvgAbsDiff, float yAvgAbsDiff, float zAvgAbsDiff,
-			  double xStdDev,double yStdDev,double zStdDev)
+			  double xStdDev,double yStdDev,double zStdDev, String datestamp,int duration)
 	{
 		
 		this.xAvg = xAvg;
@@ -30,6 +33,9 @@ public class FeatureData
 		this.xStdDev = xStdDev;
 		this.yStdDev = yStdDev;
 		this.zStdDev = zStdDev;
+		
+		this.datestamp = datestamp;
+		this.duration = duration;
 			
 	}
 	
@@ -55,5 +61,15 @@ public class FeatureData
 		
 		
 		return returnValue;
+	}
+	
+	public String getDatestamp()
+	{
+		return datestamp;
+	}
+	
+	public int getDuration()
+	{
+		return duration;
 	}
 }

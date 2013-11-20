@@ -1,7 +1,5 @@
 package com.example.database;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStream;
 
 import android.content.ContentValues;
@@ -9,27 +7,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 import android.util.Log;
 
 import com.example.utils.Constants;
-import com.example.weka.J48Classifier;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 	// Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
     // Database Name
     private static final String DATABASE_NAME = "workout";
     
-    private static final String RAWDATA = "rawdata";
+    //private static final String RAWDATA = "rawdata";
+    private static final String SUMMARYTBL = "SUMMARY";
    
     private static Context context;
     
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);	
 		
-		this.context = context;
+		if(context!=null)
+			this.context = context;
 	}
 
 	public static InputStream getTrainingSetIS()
@@ -47,9 +45,15 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		return is;
 	}
 	
+	public static Context getContext()
+	{
+		return context;
+	}
+	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// SQL statement to create book table
+		/*
 		String CREATE_TABLE = "CREATE TABLE rawdata ( " +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
 				"xAvg NUMERIC, "+
@@ -65,21 +69,83 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 				"zStdDev NUMERIC "+
 				
 				") ";
-				
+		*/		
 		
-		// create books table
-		db.execSQL(CREATE_TABLE);
+		String CREATE_SUMM_TBL = "CREATE TABLE SUMMARY ( " +
+						        "_id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
+								"workout_date TEXT, "+
+								"seconds NUMERIC, "+
+								"activity_name TEXT ) ";
+		
+		// create rawdata table
+		//db.execSQL(CREATE_TABLE);
+		db.execSQL(CREATE_SUMM_TBL);
 	}
+	
+	public void addSummaryData(String date, String activityName, int seconds)
+	{
+		
+		boolean doUpdate = false;
+		boolean doInsert = false;
+		
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+        String whereClause = " workout_date=? and activity_name=?";
+        String[] whereargs = {date,activityName};
+        
+        // 1. Check if record exists
+        //Log.d("MySQLiteHelper","2: " + whereargs[0] + whereargs[1]);
+        String searchQuery ="SELECT seconds From " + SUMMARYTBL + " WHERE " + whereClause;        
+        Cursor cursor = db.rawQuery(searchQuery, whereargs);
+        if(cursor.moveToFirst())
+        {
+        	doUpdate = true;
+        	seconds += cursor.getInt(0);
+        }
+        else 
+        	doInsert = true;
+        //Log.d("MySQLiteHelper","3");
+        ContentValues values = new ContentValues();
+        values.put("seconds", seconds); 
+        //Log.d("MySQLiteHelper","4");
+        // 2. update
+        if(doUpdate)
+        	db.update(SUMMARYTBL, values, whereClause, whereargs);
+        //Log.d("MySQLiteHelper","5");
+        // 3. insert
+        if(doInsert)
+        {
+        	//Add these too if its insert
+        	values.put("workout_date", date); 
+            values.put("activity_name", activityName); 
+            
+        	db.insert(SUMMARYTBL, null, values);
+        }
+        //Log.d("MySQLiteHelper","6");
+        // 4. close
+        db.close(); 
+	}
+	
+	public Cursor getSummaryData()
+	{
+		String query ="SELECT activity_name,workout_date,seconds as duration From " + SUMMARYTBL + " ORDER BY activity_name,date(workout_date)";
 
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cursor = db.rawQuery(query, null);
+
+		return cursor;
+	}
+	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older books table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + SUMMARYTBL);
         db.execSQL("DROP TABLE IF EXISTS rawdata");
         
         // create fresh books table
         this.onCreate(db);
 	}
-	
+	/*
 	public void exportEmailInCSV()
 	{
         File folder = new File(Environment.getExternalStorageDirectory() + "/Folder");
@@ -166,10 +232,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
        
        return cursor;
    }
-       
-       
-   
-    
+     
 	public void insertRawData(float xAvg, float yAvg, float zAvg,
 							  float xAvgAbsDiff, float yAvgAbsDiff, float zAvgAbsDiff,
 							  double xStdDev,double yStdDev,double zStdDev){
@@ -199,4 +262,5 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         // 4. close
         db.close(); 
 	}
+	*/
 }

@@ -42,7 +42,9 @@ public class AccelerometerReader extends ActionBarActivity
 		 editTextZ = (EditText)findViewById(R.id.editTextZ);
 		 
 		 helper = new MySQLiteHelper (this);
-		 helper.getRawData();
+		 
+		 
+		 //helper.getRawData();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) 
@@ -90,7 +92,8 @@ public class AccelerometerReader extends ActionBarActivity
 	            //composeMessage();
 	            return true;
 	        case R.id.action_reports:
-	            //composeMessage();
+	        	Intent intent = new Intent(this,AnalyticsActivity.class);
+			    startActivity(intent);
 	            return true;
 	        case R.id.action_recommendation:
 	            //composeMessage();
