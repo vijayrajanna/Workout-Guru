@@ -78,7 +78,7 @@ public class J48Classifier
 		
 	}
 	
-	public void classifySingleInstance(FeatureData dataPoint)
+	public String classifySingleInstance(FeatureData dataPoint)
 	{
 		ArrayList<Attribute> attributeList = new ArrayList<Attribute>(2);
 		int lastAttrIndex = Constants.ATTRIBUTES.length - 1;
@@ -111,13 +111,22 @@ public class J48Classifier
     	   inst_co.setValue(attributeList.get(i), dataPoint.getDataValue(i));
        }
        
+       String className = null;
+       
        try {
     	   double result = tree.classifyInstance(inst_co);
-    	   Log.d("J48classify","Single Instance Classification Result " + result);
+    	   
+    	   if(result >=0 && result <=lastAttrIndex)
+    		   className =  Constants.CLASSES[(int)result];
+    	   
+    	   Log.d("J48classify","Single Instance Classification Result: " + className);
+    	  
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return className;
 	}
 	
 }

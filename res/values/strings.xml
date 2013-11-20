@@ -33,13 +33,13 @@
     <string name="height">Height</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    
+
     <string-array name="genderList">
         <item>Male</item>
         <item>Female</item>
         <item>Other</item>
     </string-array>
-    
+
     <!-- Entries for action bar -->
     <string name="action_setGoals">Set Goals</string>
     <string name="action_reports">Analytics</string>
@@ -47,8 +47,19 @@
     <string name="action_share">Share with Friends</string>
     <string name="action_run">Start Tracking</string>
     <string name="action_stop">Stop Tracking</string>
-    
-    <!--  Entries for the service -->
+
+    <!-- Entries for the service -->
     <string name="serviceInit">Service is being initialized ....</string>
     <string name="serviceStarted">Activity Monitor initiated.</string>
+    <string name="folderPath">folderPath</string>
+    <string name="title_activity_analytics">AnalyticsActivity</string>
+
+    
+    <!--  Entries for Charts -->
+    <string name="ActivityTrend">Activity Trend</string>
+    <string name="ActivityTrendDesc">Shows activity trend for past one week</string>
+    
+    <string name="caloriesChart">Calories Burnout</string>
+    <string name="caloriesChartDesc">Shows the total calories burnt each activity for past one week</string>
+    <string name="noActivityData">No Activity Data recorded so far</string>
 </resources>
